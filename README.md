@@ -71,26 +71,24 @@ docker compose exec app php artisan key:generate
 # Run migrations
 docker compose exec app php artisan migrate
 
+# Seed the database with test data
+docker compose exec app php artisan db:seed
+
 # Access the application
 open http://localhost:8000/admin
 ```
 
 ### Default Credentials
-After setup, create your first admin user:
+The database seeder creates an admin user automatically:
 
-```bash
-docker compose exec app php artisan tinker
-```
+| Field | Value |
+|-------|-------|
+| Email | `admin@example.com` |
+| Password | `password` |
 
-```php
-\App\Models\User::create([
-    'name' => 'Admin User',
-    'email' => 'admin@example.com',
-    'password' => 'password',
-]);
-```
+Log in at: `http://localhost:8000/admin/login`
 
-Then log in at `http://localhost:8000/admin/login`
+The seeder also creates 5 additional test users to populate the data table.
 
 ## Development Commands
 

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Users\Tables;
 use App\Services\UserService;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -37,6 +38,11 @@ class UsersTable
             ])
             ->recordActions([
                 EditAction::make(),
+                DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->action(function ($record): void {
+                        app(UserService::class)->deleteUser($record);
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
