@@ -1,0 +1,59 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation (not needed in image)
+README.md
+AGENTS.md
+AI_WORKFLOW.md
+IMPLEMENTATION_PLAN.md
+PROMPTS.md
+*.md
+handoff/
+specs/
+
+# Docker files (not needed inside image)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Node modules (if any)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment files (security)
+.env
+.env.backup
+.env.production
+.env.local
+
+# Testing
+.phpunit.result.cache
+.phpunit.cache/
+coverage/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+storage/logs/*.log
+
+# Cache
+storage/framework/cache/data/*
+bootstrap/cache/*.php
+
+# Vendor (will be installed in container)
+# Note: Commented out because we COPY vendor for faster builds
+# If you want smaller context, uncomment:
+# laravel/vendor/
