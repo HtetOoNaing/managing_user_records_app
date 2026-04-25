@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\UserActivityLog;
 use App\Services\UserService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
@@ -162,5 +163,33 @@ class UserActivityLoggingTest extends TestCase
         $this->assertNotNull($log);
         $this->assertArrayNotHasKey('password', $log->data);
         $this->assertArrayNotHasKey('token', $log->data);
+    }
+
+    public function test_transaction_rollback_prevents_log_dispatch(): void
+    {
+        Queue::fake();
+
+        $uniqueEmail = 'transaction-test-' . uniqid() . '@example.com';
+
+        try {
+            DB::transaction(function () use ($uniqueEmail): void {
+                User::factory()->create([
+                    'name' => 'Transaction Test',
+                    'email' => $uniqueEmail,
+                    'password' => 'password123',
+                ]);
+
+                // Simulate failure after user creation but before commit
+                throw new \RuntimeException('Simulated transaction failure');
+            });
+        } catch (\RuntimeException) {
+            // Expected exception
+        }
+
+        // Verify user was NOT persisted
+        $this->assertDatabaseMissing('users', ['email' => $uniqueEmail]);
+
+        // Verify logging job was NOT dispatched
+        Queue::assertNotPushed(WriteUserActivityLog::class);
     }
 }
