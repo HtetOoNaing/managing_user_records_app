@@ -154,6 +154,34 @@ class UserCrudManagementTest extends TestCase
             ->assertSet('data.password', null);
     }
 
+    public function test_update_user_validation_failure_is_handled(): void
+    {
+        $admin = User::factory()->create([
+            'password' => 'password123',
+        ]);
+        $user = User::factory()->create([
+            'name' => 'Valid Name',
+            'email' => 'valid@example.com',
+        ]);
+
+        $this->actingAs($admin);
+
+        Livewire::test(EditUser::class, ['record' => $user->getRouteKey()])
+            ->set('data.name', '')
+            ->set('data.email', 'invalid-email')
+            ->set('data.password', 'short')
+            ->call('save')
+            ->assertHasFormErrors([
+                'name' => 'required',
+                'email' => 'email',
+                'password' => 'min',
+            ]);
+
+        $user->refresh();
+        $this->assertSame('Valid Name', $user->name);
+        $this->assertSame('valid@example.com', $user->email);
+    }
+
     public function test_delete_user_success_via_service_layer(): void
     {
         $user = User::factory()->create([
