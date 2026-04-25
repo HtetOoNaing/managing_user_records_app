@@ -1,0 +1,87 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: managing_user_records_app
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./laravel:/var/www
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+    networks:
+      - app_network
+
+  postgres:
+    image: postgres:17
+    container_name: managing_user_records_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: managing_user_records
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+
+  mongodb:
+    image: mongo:8
+    container_name: managing_user_records_mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: managing_user_logs
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app_network
+
+  redis:
+    image: redis:8
+    container_name: managing_user_records_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_network
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: managing_user_records_queue
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan queue:work redis --tries=3 --timeout=90
+    volumes:
+      - ./laravel:/var/www
+    depends_on:
+      - app
+      - postgres
+      - mongodb
+      - redis
+    networks:
+      - app_network
+
+volumes:
+  postgres_data:
+  mongodb_data:
+  redis_data:
+
+networks:
+  app_network:
+    driver: bridge
