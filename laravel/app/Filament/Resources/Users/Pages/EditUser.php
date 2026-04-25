@@ -25,6 +25,9 @@ class EditUser extends EditRecord
                     }
 
                     app(UserService::class)->deleteUser($record);
+                })
+                ->after(function () {
+                    return redirect(UserResource::getUrl('index'));
                 }),
         ];
     }
