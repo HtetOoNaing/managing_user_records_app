@@ -4,6 +4,9 @@ namespace Tests\Feature;
 
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
+use App\Filament\Resources\Users\Pages\ListUsers;
+use App\Filament\Resources\Users\Pages\ViewUser;
+use App\Jobs\WriteUserActivityLog;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -221,5 +224,72 @@ class UserCrudManagementTest extends TestCase
         $response->assertSee('Visible User');
         $response->assertSee('visible@example.com');
         $response->assertDontSee($user->password, false);
+    }
+
+    public function test_admin_can_view_user_detail_page(): void
+    {
+        $admin = User::factory()->create([
+            'password' => 'password123',
+        ]);
+        $user = User::factory()->create([
+            'name' => 'Detail User',
+            'email' => 'detail@example.com',
+        ]);
+
+        $this->actingAs($admin);
+
+        Livewire::test(ViewUser::class, ['record' => $user->getRouteKey()])
+            ->assertOk()
+            ->assertSee('Detail User')
+            ->assertSee('detail@example.com');
+    }
+
+    public function test_view_user_page_dispatches_user_viewed_event(): void
+    {
+        $admin = User::factory()->create([
+            'password' => 'password123',
+        ]);
+        $user = User::factory()->create();
+
+        $this->actingAs($admin);
+
+        Livewire::test(ViewUser::class, ['record' => $user->getRouteKey()]);
+
+        Queue::assertPushed(WriteUserActivityLog::class, function (WriteUserActivityLog $job) use ($user): bool {
+            return $job->event === WriteUserActivityLog::EVENT_USER_VIEWED
+                && $job->userId === (int) $user->id;
+        });
+    }
+
+    public function test_admin_can_delete_user_from_edit_page_action(): void
+    {
+        $admin = User::factory()->create([
+            'password' => 'password123',
+        ]);
+        $user = User::factory()->create();
+
+        $this->actingAs($admin);
+
+        Livewire::test(EditUser::class, ['record' => $user->getRouteKey()])
+            ->callAction('delete');
+
+        $this->assertDatabaseMissing('users', ['id' => $user->id]);
+    }
+
+    public function test_admin_can_bulk_delete_users_from_list(): void
+    {
+        $admin = User::factory()->create([
+            'password' => 'password123',
+        ]);
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+
+        $this->actingAs($admin);
+
+        Livewire::test(ListUsers::class)
+            ->callTableBulkAction('delete', [$user1, $user2]);
+
+        $this->assertDatabaseMissing('users', ['id' => $user1->id]);
+        $this->assertDatabaseMissing('users', ['id' => $user2->id]);
     }
 }

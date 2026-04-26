@@ -26,8 +26,8 @@ RUN apt-get update && apt-get install -y \
     opcache \
     intl
 
-RUN pecl install redis mongodb \
-    && docker-php-ext-enable redis mongodb
+RUN pecl install redis mongodb pcov \
+    && docker-php-ext-enable redis mongodb pcov
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
