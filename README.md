@@ -252,8 +252,14 @@ docker compose exec app php artisan test --filter=test_name -v
 # Restart queue worker
 docker compose restart queue
 
-# Check queue status
-docker compose exec app php artisan queue:status
+# Check for failed jobs
+docker compose exec app php artisan queue:failed
+
+# Monitor queue size
+docker compose exec app php artisan queue:monitor redis:default
+
+# Check queue worker is running
+docker compose ps queue
 ```
 
 ### MongoDB Connection Issues
@@ -261,8 +267,8 @@ docker compose exec app php artisan queue:status
 # Verify MongoDB is running
 docker compose ps mongodb
 
-# Test connection
-docker compose exec app php artisan tinker --execute="DB::connection('mongodb')->getClient()->listDatabases();"
+# Test connection (prints log count)
+docker compose exec app php artisan tinker --execute="echo App\Models\UserActivityLog::count();"
 ```
 
 ## License

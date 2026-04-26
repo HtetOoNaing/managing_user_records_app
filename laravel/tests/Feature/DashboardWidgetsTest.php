@@ -141,6 +141,39 @@ describe('Dashboard Widgets', function (): void {
             Livewire::test(RecentActivityWidget::class)
                 ->assertSee('Deleted User #9999');
         });
+
+        test('shows USER_CREATED and USER_UPDATED event badges', function (): void {
+            $this->actingAs($this->admin);
+
+            UserActivityLog::create([
+                'user_id' => $this->admin->id,
+                'event'   => WriteUserActivityLog::EVENT_USER_CREATED,
+                'data'    => ['actor_id' => $this->admin->id, 'attributes' => ['name' => $this->admin->name]],
+            ]);
+
+            UserActivityLog::create([
+                'user_id' => $this->admin->id,
+                'event'   => WriteUserActivityLog::EVENT_USER_UPDATED,
+                'data'    => ['actor_id' => $this->admin->id, 'changed_fields' => ['name']],
+            ]);
+
+            Livewire::test(RecentActivityWidget::class)
+                ->assertSee('USER_CREATED')
+                ->assertSee('USER_UPDATED');
+        });
+
+        test('shows USER_LOGOUT event badge', function (): void {
+            $this->actingAs($this->admin);
+
+            UserActivityLog::create([
+                'user_id' => $this->admin->id,
+                'event'   => WriteUserActivityLog::EVENT_USER_LOGOUT,
+                'data'    => ['actor_id' => null, 'timestamp' => now()->toIso8601String()],
+            ]);
+
+            Livewire::test(RecentActivityWidget::class)
+                ->assertSee('USER_LOGOUT');
+        });
     });
 
     describe('QuickActionsWidget', function (): void {
