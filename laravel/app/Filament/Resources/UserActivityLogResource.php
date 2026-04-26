@@ -14,7 +14,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Support\Colors\Color;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Facades\Log;
 
 class UserActivityLogResource extends Resource
 {

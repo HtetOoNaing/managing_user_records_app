@@ -10,7 +10,9 @@ This project demonstrates a Senior AI-Augmented Software Engineer assessment imp
 - **User CRUD Management**: Full create, read, update, delete via Filament Resources
 - **Asynchronous Logging**: Redis queue-based activity logging to MongoDB
 - **Multi-Database Architecture**: PostgreSQL for users, MongoDB for logs
-- **Comprehensive Testing**: Pest + PHPUnit with 49 tests and 119 assertions
+- **User Activity Logs**: Read-only audit trail resource with event badges, filters, and detail view
+- **Enhanced Admin Dashboard**: Stats overview, recent activity feed, and quick-action navigation
+- **Comprehensive Testing**: Pest + PHPUnit with 76 tests and 155 assertions
 
 ## Technology Stack
 
@@ -117,14 +119,17 @@ docker compose exec app php artisan pail
 
 The project includes comprehensive test coverage:
 
-### Feature Tests (26 tests)
-- `FilamentAuthenticationTest` - Login, logout, auth middleware
-- `UserCrudManagementTest` - CRUD operations, validation, password handling
-- `UserActivityLoggingTest` - Async logging, idempotency, transaction rollback
+### Feature Tests (53 tests)
+- `FilamentAuthenticationTest` (7) - Login, logout, auth middleware
+- `UserCrudManagementTest` (10) - CRUD operations, validation, password handling
+- `UserActivityLoggingTest` (8) - Async logging, idempotency, transaction rollback
+- `UserActivityLogResourceTest` (5) - Audit log resource, read-only, view page
+- `LandingPageTest` (6) - Landing page rendering and links
+- `DashboardWidgetsTest` (16) - Stats, recent activity, quick actions widgets
 
 ### Unit Tests (23 tests - Pest)
-- `UserServiceTest` - Service layer business logic
-- `WriteUserActivityLogTest` - Queue job behavior
+- `UserServiceTest` (13) - Service layer business logic
+- `WriteUserActivityLogTest` (9) - Queue job behavior and idempotency
 
 Run tests:
 ```bash
@@ -157,36 +162,46 @@ Modern, expressive syntax while maintaining PHPUnit compatibility:
 
 ```
 managing_user_records_app/
-├── AGENTS.md                 # AI agent constraints & rules
-├── AI_WORKFLOW.md            # Development workflow
-├── IMPLEMENTATION_PLAN.md    # Phase-by-phase plan
-├── PROMPTS.md                # Approved AI prompts
-├── docker-compose.yml        # Docker orchestration
-├── specs/                    # Feature specifications
+├── AGENTS.md                          # AI agent constraints & rules
+├── AI_WORKFLOW.md                     # Development workflow
+├── ADDITIONAL_PLAN.md                 # Extended feature plans
+├── IMPLEMENTATION_PLAN.md             # Phase-by-phase plan
+├── PROMPTS.md                         # Approved AI prompts
+├── docker-compose.yml                 # Docker orchestration
+├── specs/                             # Feature specifications
 │   ├── auth-spec.md
 │   ├── user-crud-spec.md
 │   ├── logging-spec.md
 │   ├── queue-spec.md
-│   └── testing-spec.md
-├── handoff/                  # Phase handoff documents
-│   ├── phase-1-handoff.md
-│   ├── phase-2-handoff.md
-│   ├── phase-3-handoff.md
-│   ├── phase-4-handoff.md
-│   ├── phase-5-handoff.md
-│   └── phase-6-handoff.md
+│   ├── testing-spec.md
+│   ├── user-activity-log-spec.md
+│   └── dashboard-spec.md
+├── handoff/                           # Phase handoff documents (phases 1–10)
+│   ├── phase-1-handoff.md … phase-10-dashboard-handoff.md
+│   └── template.md
 └── laravel/
     ├── app/
-    │   ├── Filament/Resources/Users/   # Filament admin UI
-    │   ├── Jobs/WriteUserActivityLog.php # Queue job
+    │   ├── Filament/
+    │   │   ├── Resources/
+    │   │   │   ├── Users/             # User CRUD resource
+    │   │   │   └── UserActivityLogResource/  # Audit log resource (read-only)
+    │   │   └── Widgets/
+    │   │       ├── StatsOverviewWidget.php   # Stats cards
+    │   │       ├── RecentActivityWidget.php  # Last 10 activity logs
+    │   │       └── QuickActionsWidget.php    # Navigation shortcuts
+    │   ├── Jobs/WriteUserActivityLog.php     # Queue job
     │   ├── Models/
-    │   │   ├── User.php                 # PostgreSQL user model
-    │   │   └── UserActivityLog.php      # MongoDB log model
-    │   └── Services/UserService.php     # Business logic
-    ├── tests/
-    │   ├── Feature/                     # Integration tests
-    │   └── Unit/                        # Unit tests (Pest)
-    └── docker-compose.yml               # Local development
+    │   │   ├── User.php               # PostgreSQL user model
+    │   │   └── UserActivityLog.php    # MongoDB log model
+    │   ├── Providers/
+    │   │   ├── AppServiceProvider.php # Login/logout event listeners
+    │   │   └── Filament/AdminPanelProvider.php
+    │   └── Services/UserService.php   # Business logic
+    ├── resources/views/filament/widgets/
+    │   └── quick-actions-widget.blade.php    # Quick actions Blade view
+    └── tests/
+        ├── Feature/                   # Integration tests (53 tests)
+        └── Unit/                      # Unit tests (23 tests)
 ```
 
 ## Database Configuration
@@ -214,9 +229,12 @@ Before submission, verify:
 - [ ] All tests pass: `docker compose exec app php artisan test`
 - [ ] Docker builds cleanly: `docker compose up -d --build`
 - [ ] Admin login works at `http://localhost:8000/admin`
+- [ ] Dashboard shows stats (total users, new today, activities today)
+- [ ] Dashboard recent activity table shows last 10 logs
+- [ ] Dashboard quick action buttons navigate correctly
 - [ ] User CRUD operations work
-- [ ] Activity logs appear in MongoDB
-- [ ] Queue worker processes jobs
+- [ ] Activity logs appear in MongoDB and at `/admin/user-activity-logs`
+- [ ] Queue worker processes jobs automatically
 
 ## Troubleshooting
 
