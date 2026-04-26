@@ -12,7 +12,7 @@ This project demonstrates a Senior AI-Augmented Software Engineer assessment imp
 - **Multi-Database Architecture**: PostgreSQL for users, MongoDB for logs
 - **User Activity Logs**: Read-only audit trail resource with event badges, filters, and detail view
 - **Enhanced Admin Dashboard**: Stats overview, recent activity feed, and quick-action navigation
-- **Comprehensive Testing**: Pest + PHPUnit with 76 tests and 155 assertions
+- **Comprehensive Testing**: Pest + PHPUnit with 91 tests and 183 assertions — 96.6% code coverage
 
 ## Technology Stack
 
@@ -119,17 +119,28 @@ docker compose exec app php artisan pail
 
 The project includes comprehensive test coverage:
 
-### Feature Tests (53 tests)
+### Feature Tests (68 tests)
 - `FilamentAuthenticationTest` (7) - Login, logout, auth middleware
-- `UserCrudManagementTest` (10) - CRUD operations, validation, password handling
+- `UserCrudManagementTest` (14) - CRUD operations, validation, password handling, ViewUser page, bulk delete
 - `UserActivityLoggingTest` (8) - Async logging, idempotency, transaction rollback
-- `UserActivityLogResourceTest` (5) - Audit log resource, read-only, view page
 - `LandingPageTest` (6) - Landing page rendering and links
-- `DashboardWidgetsTest` (16) - Stats, recent activity, quick actions widgets
+- `DashboardWidgetsTest` (18) - Stats, recent activity (all event types), quick actions widgets
+- `UserActivityLogResourceTest` (14) - Activity log list/view pages, ViewUserActivityLog Livewire, access control, search
 
 ### Unit Tests (23 tests - Pest)
 - `UserServiceTest` (13) - Service layer business logic
 - `WriteUserActivityLogTest` (9) - Queue job behavior and idempotency
+
+### Coverage Report
+```
+Total: 96.6%
+```
+Key file coverage (via PCOV):
+- `ViewUser`, `CreateUser`, `ListUsers`, `UserResource` — 100%
+- `ViewUserActivityLog` — 96.8%
+- `UsersTable`, `RecentActivityWidget`, `QuickActionsWidget` — 97.6–100%
+- `UserActivityLogResource` — 95.7%
+- Remaining gaps: defensive `catch (Throwable)` branches and unreachable guards
 
 Run tests:
 ```bash
@@ -200,7 +211,7 @@ managing_user_records_app/
     ├── resources/views/filament/widgets/
     │   └── quick-actions-widget.blade.php    # Quick actions Blade view
     └── tests/
-        ├── Feature/                   # Integration tests (53 tests)
+        ├── Feature/                   # Integration tests (68 tests)
         └── Unit/                      # Unit tests (23 tests)
 ```
 
