@@ -20,6 +20,8 @@ class WriteUserActivityLog implements ShouldQueue
     public const EVENT_USER_UPDATED = 'USER_UPDATED';
     public const EVENT_USER_DELETED = 'USER_DELETED';
     public const EVENT_USER_LOGIN = 'USER_LOGIN';
+    public const EVENT_USER_LOGOUT = 'USER_LOGOUT';
+    public const EVENT_USER_VIEWED = 'USER_VIEWED';
 
     public int $tries = 3;
 

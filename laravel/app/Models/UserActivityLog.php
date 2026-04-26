@@ -10,6 +10,12 @@ class UserActivityLog extends Model
 
     protected $collection = 'user_activity_logs';
 
+    protected $primaryKey = '_id';
+
+    protected $keyType = 'string';
+
+    public $incrementing = false;
+
     protected $fillable = [
         'idempotency_key',
         'user_id',
