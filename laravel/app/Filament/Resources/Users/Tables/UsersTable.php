@@ -34,6 +34,7 @@ class UsersTable
                     ->dateTime()
                     ->sortable(),
             ])
+            ->defaultSort('updated_at', 'desc')
             ->filters([
                 //
             ])
