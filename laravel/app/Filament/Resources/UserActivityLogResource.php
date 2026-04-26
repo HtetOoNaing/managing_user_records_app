@@ -57,7 +57,15 @@ class UserActivityLogResource extends Resource
                     ->label('User')
                     ->getStateUsing(function (UserActivityLog $record): string {
                         $user = User::find($record->user_id);
-                        return $user?->name ?? "User #{$record->user_id}";
+                        if ($user) {
+                            return $user->name;
+                        }
+                        $data = $record->data ?? [];
+                        return $data['user_name']
+                            ?? $data['attributes']['name']
+                            ?? $data['current_values']['name']
+                            ?? $data['previous_values']['name']
+                            ?? "Deleted User #{$record->user_id}";
                     })
                     ->searchable(query: function ($query, $search) {
                         $userIds = User::where('name', 'like', "%{$search}%")

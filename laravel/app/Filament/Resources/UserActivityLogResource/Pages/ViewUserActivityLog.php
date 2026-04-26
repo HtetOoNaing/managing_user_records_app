@@ -37,7 +37,15 @@ class ViewUserActivityLog extends ViewRecord
                         TextEntry::make('user_name')
                             ->getStateUsing(function ($record): string {
                                 $user = User::find($record->user_id);
-                                return $user?->name ?? "User #{$record->user_id}";
+                                if ($user) {
+                                    return $user->name;
+                                }
+                                $data = $record->data ?? [];
+                                return $data['user_name']
+                                    ?? $data['attributes']['name']
+                                    ?? $data['current_values']['name']
+                                    ?? $data['previous_values']['name']
+                                    ?? "Deleted User #{$record->user_id}";
                             }),
 
                         TextEntry::make('actor_name')
@@ -47,7 +55,10 @@ class ViewUserActivityLog extends ViewRecord
                                     return 'System';
                                 }
                                 $actor = User::find($actorId);
-                                return $actor?->name ?? "User #{$actorId}";
+                                if ($actor) {
+                                    return $actor->name;
+                                }
+                                return "Deleted User #{$actorId}";
                             }),
 
                         TextEntry::make('created_at')

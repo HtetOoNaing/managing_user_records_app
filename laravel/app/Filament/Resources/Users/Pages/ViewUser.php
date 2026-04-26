@@ -41,17 +41,19 @@ class ViewUser extends ViewRecord
         ];
     }
 
-    protected function afterFill(): void
+    public function mount(int|string $record): void
     {
-        // Log the view event after the record is loaded
-        $record = $this->getRecord();
+        parent::mount($record);
+
+        $loadedRecord = $this->getRecord();
         $viewer = auth()->user();
 
         dispatch(new WriteUserActivityLog(
-            userId: (int) $record->id,
+            userId: (int) $loadedRecord->id,
             event: WriteUserActivityLog::EVENT_USER_VIEWED,
             data: [
                 'actor_id' => $viewer?->id,
+                'user_name' => $loadedRecord->name,
                 'timestamp' => now()->toIso8601String(),
             ],
         ));
